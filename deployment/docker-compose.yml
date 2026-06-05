@@ -1,0 +1,25 @@
+services:
+  # Bộ thu thập dữ liệu log
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.10
+    container_name: siem-collector
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m" # Ép Logstash chỉ dùng 256MB RAM
+    ports:
+      - "514:514/udp"
+      - "5044:5044"
+    volumes:
+      - logstash-data:/usr/share/logstash/data
+
+  # Giao diện hiển thị biểu đồ đồ thị chuẩn quốc tế
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: siem-dashboard
+    environment:
+      - "SERVER_NAME=kibana-siem"
+      - "ELASTICSEARCH_HOSTS=http://logstash:9600" # Kết nối trực tiếp lấy metric
+    ports:
+      - "5601:5601" # Cổng truy cập giao diện web
+
+volumes:
+  logstash-data:
